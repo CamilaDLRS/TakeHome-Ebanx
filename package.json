@@ -1,0 +1,14 @@
+{
+  "name": "takehome-ebanx",
+  "version": "1.0.0",
+  "description": "EBANX Software Engineer Take-home assignment",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "build:copy": "xcopy *.json .\\dist /Y && cd dist && npm i",
+    "start:dev": "nodemon ./src/index.ts"
+  },
+  "author": "Camila Delarosa",
+  "license": "ISC"
+}

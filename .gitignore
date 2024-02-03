@@ -1,0 +1,17 @@
+# Compiled JavaScript files
+dist/**/*.js
+dist/**/*.js.map
+
+# TypeScript v1 declaration files
+typings/
+
+# Node.js dependency directory
+node_modules/
+
+secure/
+
+package-lock.json
+
+.env
+.env.prod
+.env.standby
