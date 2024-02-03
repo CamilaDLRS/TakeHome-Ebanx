@@ -2,6 +2,7 @@ require('dotenv').config();
 import express from 'express';
 import helmet from 'helmet';
 import * as http from 'http';
+import takeHomeRouter from "./routes/takeHome.routes";
 
 const port = process.env.PORT;
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.get('/health', (req, res) => { res.status(200).send('Ok') });
+app.use('/', takeHomeRouter);
 
 try {
   const server = http.createServer(app);
