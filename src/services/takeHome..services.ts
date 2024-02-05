@@ -41,7 +41,7 @@ export class TakeHomeServices {
         throw new ApiError(404, InternalCode.NOT_FOUND);
       }
 
-      const account = new Account(event.amount, event.destinationAccount!);
+      const account = new Account(existingBalance + event.amount, event.destinationAccount!);
       await this.repositories.updateBalanceAccount(account);
       await this.repositories.createAccountEvent(event);
 
@@ -60,7 +60,7 @@ export class TakeHomeServices {
         throw new ApiError(404, InternalCode.NOT_FOUND);
       }
       else {
-        const account = new Account(currentBalance - event.amount, event.destinationAccount!);
+        const account = new Account(currentBalance - event.amount, event.originAccount!);
         await this.repositories.updateBalanceAccount(account);
         await this.repositories.createAccountEvent(event);
       }
@@ -85,7 +85,7 @@ export class TakeHomeServices {
         const destinationAccount = new Account(destinationBalance + event.amount, event.destinationAccount!);
 
         await this.repositories.updateBalanceAccount(originAccount);
-        await this.repositories.updateBalanceAccount(destinationAccount );
+        await this.repositories.updateBalanceAccount(destinationAccount);
         await this.repositories.createAccountEvent(event);
       }
     } catch (error) {

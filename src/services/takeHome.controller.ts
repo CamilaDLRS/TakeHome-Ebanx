@@ -10,7 +10,7 @@ export class TakeHomeController {
   private handleInternalError(res: Response, error: any): void {
     res.status(500).json(new ApiError(500, InternalCode.INTERNAL_ERROR, error)).send();
   }
-  
+
   async resetDatabase(req: Request, res: Response) {
     try {
       await this.takeHomeServices.reset();
@@ -30,7 +30,7 @@ export class TakeHomeController {
     try {
       const accountId = req.query.account_id as string;
       const balance = await this.takeHomeServices.getBalance(accountId);
-      
+
       res.status(200).json(balance).send();
 
     } catch (error: any) {
@@ -67,24 +67,20 @@ export class TakeHomeController {
         }
       }
       else if (newAccountEvent.type === "transfer") {
-        const [originBalance, destinationBalance] = await Promise.all([
-          this.takeHomeServices.getBalance(newAccountEvent.originAccount!),
-          this.takeHomeServices.getBalance(newAccountEvent.destinationAccount!)
-        ]);
         await this.takeHomeServices.transferBalance(newAccountEvent);
 
         responseBody = {
           origin: {
             id: newAccountEvent.originAccount,
-            balance: originBalance
+            balance: await this.takeHomeServices.getBalance(newAccountEvent.originAccount!)
           },
           destination: {
             id: newAccountEvent.destinationAccount,
-            balance: destinationBalance 
+            balance: await this.takeHomeServices.getBalance(newAccountEvent.destinationAccount!)
           }
         }
       }
-      
+
       res.status(201).json(responseBody).send();
 
     } catch (error: any) {
