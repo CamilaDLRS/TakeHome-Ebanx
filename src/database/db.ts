@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { AccountEvent } from '../entities/accountEvent';
+import { Account } from '../entities/account';
 
 export class FakeDatabase {
   private db: sqlite3.Database;
@@ -79,11 +80,11 @@ export class FakeDatabase {
     });
   }
 
-  public updateBalanceAccount(balance: number, id: string): Promise<void> {
+  public updateBalanceAccount(data: Account): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run(
         'UPDATE accounts SET balance = balance + ? WHERE id = ?',
-        [balance, id],
+        [data.balance, data.id],
         (err) => {
           if (err) {
             reject(err);
