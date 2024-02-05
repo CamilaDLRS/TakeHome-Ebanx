@@ -7,6 +7,10 @@ import { AccountEvent } from "../entities/accountEvent";
 export class TakeHomeController {
   constructor(private takeHomeServices: TakeHomeServices) { };
 
+  private handleInternalError(res: Response, error: any): void {
+    res.status(500).json(new ApiError(500, InternalCode.INTERNAL_ERROR, error)).send();
+  }
+  
   async resetDatabase(req: Request, res: Response) {
     try {
       await this.takeHomeServices.reset();
@@ -17,9 +21,7 @@ export class TakeHomeController {
         res.status(error.statusCode).json(error).send();
       }
       else {
-        res.status(500).json(
-          new ApiError(500, InternalCode.INTERNAL_ERROR, error)
-        ).send();
+        this.handleInternalError(res, error);
       }
     }
   }
@@ -36,9 +38,7 @@ export class TakeHomeController {
         res.status(error.statusCode).json(0).send();
       }
       else {
-        res.status(500).json(
-          new ApiError(500, InternalCode.INTERNAL_ERROR, error)
-        ).send();
+        this.handleInternalError(res, error);
       }
     }
   }
@@ -67,15 +67,20 @@ export class TakeHomeController {
         }
       }
       else if (newAccountEvent.type === "transfer") {
+        const [originBalance, destinationBalance] = await Promise.all([
+          this.takeHomeServices.getBalance(newAccountEvent.originAccount!),
+          this.takeHomeServices.getBalance(newAccountEvent.destinationAccount!)
+        ]);
         await this.takeHomeServices.transferBalance(newAccountEvent);
+
         responseBody = {
           origin: {
             id: newAccountEvent.originAccount,
-            balance: await this.takeHomeServices.getBalance(newAccountEvent.originAccount!)
+            balance: originBalance
           },
           destination: {
             id: newAccountEvent.destinationAccount,
-            balance: await this.takeHomeServices.getBalance(newAccountEvent.destinationAccount!)
+            balance: destinationBalance 
           }
         }
       }
@@ -87,9 +92,7 @@ export class TakeHomeController {
         res.status(error.statusCode).json(0).send();
       }
       else {
-        res.status(500).json(
-          new ApiError(500, InternalCode.INTERNAL_ERROR, error)
-        ).send();
+        this.handleInternalError(res, error);
       }
     }
   }

@@ -22,7 +22,7 @@ export class TakeHomeServices {
       const balance = await this.repositories.getBalanceAccount(accountId);
 
       if (balance === null) {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+        throw new ApiError(404, InternalCode.NOT_FOUND);
       }
       return balance;
     } catch (error) {
@@ -35,14 +35,16 @@ export class TakeHomeServices {
 
   async depositBalance(event: AccountEvent): Promise<void> {
     try {
-      if (await this.getBalance(event.destinationAccount!) === null) {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+      const existingBalance = await this.getBalance(event.destinationAccount!);
+
+      if (existingBalance === null) {
+        throw new ApiError(404, InternalCode.NOT_FOUND);
       }
-      else {
-        const account = new Account(event.amount, event.destinationAccount!);
-        await this.repositories.updateBalanceAccount(account);
-        await this.repositories.createAccountEvent(event);
-      }
+
+      const account = new Account(event.amount, event.destinationAccount!);
+      await this.repositories.updateBalanceAccount(account);
+      await this.repositories.createAccountEvent(event);
+
     } catch (error) {
       if (!(error instanceof ApiError)) {
         console.log("Could not create an authentication user.", error);
@@ -53,12 +55,12 @@ export class TakeHomeServices {
 
   async withdrawBalance(event: AccountEvent) {
     try {
-      const currentlyBalance = await this.getBalance(event.originAccount!);
-      if (currentlyBalance === null) {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+      const currentBalance = await this.getBalance(event.originAccount!);
+      if (currentBalance === null) {
+        throw new ApiError(404, InternalCode.NOT_FOUND);
       }
       else {
-        const account = new Account(currentlyBalance - event.amount, event.destinationAccount!);
+        const account = new Account(currentBalance - event.amount, event.destinationAccount!);
         await this.repositories.updateBalanceAccount(account);
         await this.repositories.createAccountEvent(event);
       }
@@ -72,18 +74,18 @@ export class TakeHomeServices {
 
   async transferBalance(event: AccountEvent) {
     try {
-      const currentlyOriginBalance = await this.getBalance(event.originAccount!);
-      const currentlyDestinationBalance = await this.getBalance(event.destinationAccount!);
+      const originBalance = await this.getBalance(event.originAccount!);
+      const destinationBalance = await this.getBalance(event.destinationAccount!);
 
-      if (currentlyOriginBalance === null || currentlyDestinationBalance=== null) {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+      if (originBalance === null || destinationBalance === null) {
+        throw new ApiError(404, InternalCode.NOT_FOUND);
       }
       else {
-        const originAccount = new Account(currentlyOriginBalance - event.amount, event.originAccount!);
-        const account = new Account(currentlyDestinationBalance + event.amount, event.destinationAccount!);
+        const originAccount = new Account(originBalance - event.amount, event.originAccount!);
+        const destinationAccount = new Account(destinationBalance + event.amount, event.destinationAccount!);
 
         await this.repositories.updateBalanceAccount(originAccount);
-        await this.repositories.updateBalanceAccount(account);
+        await this.repositories.updateBalanceAccount(destinationAccount );
         await this.repositories.createAccountEvent(event);
       }
     } catch (error) {

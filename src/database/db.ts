@@ -83,7 +83,7 @@ export class FakeDatabase {
   public updateBalanceAccount(data: Account): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run(
-        'UPDATE accounts SET balance = balance + ? WHERE id = ?',
+        'UPDATE accounts SET balance = ? WHERE id = ?',
         [data.balance, data.id],
         (err) => {
           if (err) {

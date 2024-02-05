@@ -12,12 +12,6 @@ const fakeDatabase = new FakeDatabase();
 const takeHomeServices = new TakeHomeServices(fakeDatabase);
 const takeHomeController = new TakeHomeController(takeHomeServices);
 
-const app = express();
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(cors());
-
 const takeHomeRouter = express.Router();
 
 takeHomeRouter.post(
@@ -37,6 +31,4 @@ takeHomeRouter.post(
   (req, res) =>  takeHomeController.createAccountEvent(req, res)
 );
 
-app.use(takeHomeRouter);
-
-export default app;
+export default takeHomeRouter;

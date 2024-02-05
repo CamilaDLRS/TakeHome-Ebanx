@@ -2,7 +2,7 @@ require('dotenv').config();
 import express from 'express';
 import helmet from 'helmet';
 import * as http from 'http';
-import takeHomeRouter from "./routes/takeHome.routes";
+import takeHomeRouter from './routes/takeHome.routes';
 
 const port = process.env.PORT;
 const app = express();
