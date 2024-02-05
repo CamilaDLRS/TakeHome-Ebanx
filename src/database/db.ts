@@ -5,7 +5,7 @@ export class FakeDatabase {
   private db: sqlite3.Database;
 
   constructor() {
-    this.db = new sqlite3.Database(':memory:'); // In-memory database
+    this.db = new sqlite3.Database(':memory:');
     this.initializeDatabase();
   }
 

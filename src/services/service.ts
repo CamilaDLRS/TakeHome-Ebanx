@@ -10,7 +10,7 @@ export class TakeHomeServices {
 
   async reset(): Promise<void> {
     try {
-      await this.repositories.resetDatabase();
+      this.repositories.resetDatabase();
     } catch (error) {
       if (!(error instanceof ApiError)) {
         console.log("Could not reset the fake database.", error);
@@ -22,7 +22,7 @@ export class TakeHomeServices {
   async getBalance(accountId: string): Promise<number | null> {
     try {
       const balance = await this.repositories.getBalanceAccount(accountId);
-      console.log('balance = ', balance);
+
       if (balance === null) {
         throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
@@ -37,13 +37,14 @@ export class TakeHomeServices {
 
   async depositBalance(event: AccountEvent): Promise<void> {
     try {
-      if (await this.getBalance(event.destinationAccount!) !== null) {
+      if (await this.getBalance(event.destinationAccount!) === null) {
+        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+      }
+      else {
         await this.repositories.updateBalanceAccount(event.amount, event.destinationAccount!);
         await this.repositories.createAccountEvent(event);
       }
-      else {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
-      }
+
       return;
     } catch (error) {
       if (!(error instanceof ApiError)) {
@@ -55,13 +56,12 @@ export class TakeHomeServices {
 
   async withdrawBalance(event: AccountEvent) {
     try {
-      if (await this.getBalance(event.originAccount!) !== null) {
-        //editar saldo, subtraÇão
-        await this.repositories.updateBalanceAccount(-event.amount, event.originAccount!);
-        await this.repositories.createAccountEvent(event);
+      if (await this.getBalance(event.originAccount!) === null) {
+        throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
       else {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+        await this.repositories.updateBalanceAccount(-event.amount, event.originAccount!);
+        await this.repositories.createAccountEvent(event);
       }
     } catch (error) {
       if (!(error instanceof ApiError)) {
@@ -73,14 +73,14 @@ export class TakeHomeServices {
 
   async transferBalance(event: AccountEvent) {
     try {
-      if ((await this.getBalance(event.originAccount!) != null) &&
-        (await this.getBalance(event.destinationAccount!) != null)) {
+      if ((await this.getBalance(event.originAccount!) === null) ||
+        (await this.getBalance(event.destinationAccount!) === null)) {
+        throw new ApiError(404, InternalCode.INVALID_REQUEST);
+      }
+      else {
         await this.repositories.updateBalanceAccount(-event.amount, event.originAccount!);
         await this.repositories.updateBalanceAccount(event.amount, event.destinationAccount!);
         await this.repositories.createAccountEvent(event);
-      }
-      else {
-        throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
     } catch (error) {
       if (!(error instanceof ApiError)) {
