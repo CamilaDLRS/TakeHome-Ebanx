@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
-import { TakeHomeController } from "../services/controller";
-import { TakeHomeServices } from "../services/service";
+import { TakeHomeController } from "../services/takeHome.controller";
+import { TakeHomeServices } from "../services/takeHome..services";
 import { ResourceValidation } from "../middlewares/resourceValidation.middleware";
 import { checkAccountId } from "../middlewares/schemas/id.schema";
 import { createEventSchema } from "../middlewares/schemas/event.schema";

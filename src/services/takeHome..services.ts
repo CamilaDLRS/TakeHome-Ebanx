@@ -12,9 +12,7 @@ export class TakeHomeServices {
     try {
       this.repositories.resetDatabase();
     } catch (error) {
-      if (!(error instanceof ApiError)) {
-        console.log("Could not reset the fake database.", error);
-      }
+      console.log("Could not reset the fake database.", error);
       throw error;
     }
   }
@@ -41,11 +39,10 @@ export class TakeHomeServices {
         throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
       else {
-        await this.repositories.updateBalanceAccount(event.amount, event.destinationAccount!);
+        const account = new Account(event.amount, event.destinationAccount!);
+        await this.repositories.updateBalanceAccount(account);
         await this.repositories.createAccountEvent(event);
       }
-
-      return;
     } catch (error) {
       if (!(error instanceof ApiError)) {
         console.log("Could not create an authentication user.", error);
@@ -56,11 +53,13 @@ export class TakeHomeServices {
 
   async withdrawBalance(event: AccountEvent) {
     try {
-      if (await this.getBalance(event.originAccount!) === null) {
+      const currentlyBalance = await this.getBalance(event.originAccount!);
+      if (currentlyBalance === null) {
         throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
       else {
-        await this.repositories.updateBalanceAccount(-event.amount, event.originAccount!);
+        const account = new Account(currentlyBalance - event.amount, event.destinationAccount!);
+        await this.repositories.updateBalanceAccount(account);
         await this.repositories.createAccountEvent(event);
       }
     } catch (error) {
@@ -73,13 +72,18 @@ export class TakeHomeServices {
 
   async transferBalance(event: AccountEvent) {
     try {
-      if ((await this.getBalance(event.originAccount!) === null) ||
-        (await this.getBalance(event.destinationAccount!) === null)) {
+      const currentlyOriginBalance = await this.getBalance(event.originAccount!);
+      const currentlyDestinationBalance = await this.getBalance(event.destinationAccount!);
+
+      if (currentlyOriginBalance === null || currentlyDestinationBalance=== null) {
         throw new ApiError(404, InternalCode.INVALID_REQUEST);
       }
       else {
-        await this.repositories.updateBalanceAccount(-event.amount, event.originAccount!);
-        await this.repositories.updateBalanceAccount(event.amount, event.destinationAccount!);
+        const originAccount = new Account(currentlyOriginBalance - event.amount, event.originAccount!);
+        const account = new Account(currentlyDestinationBalance + event.amount, event.destinationAccount!);
+
+        await this.repositories.updateBalanceAccount(originAccount);
+        await this.repositories.updateBalanceAccount(account);
         await this.repositories.createAccountEvent(event);
       }
     } catch (error) {

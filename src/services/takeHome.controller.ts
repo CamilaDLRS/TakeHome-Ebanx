@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { ApiError, ApiResponse } from "../utils/apiResponse";
+import { ApiError } from "../utils/apiResponse";
 import { InternalCode } from "../utils/internalCodes";
-import { TakeHomeServices } from "./service";
+import { TakeHomeServices } from "./takeHome..services";
 import { AccountEvent } from "../entities/accountEvent";
 
 export class TakeHomeController {
@@ -10,10 +10,7 @@ export class TakeHomeController {
   async resetDatabase(req: Request, res: Response) {
     try {
       await this.takeHomeServices.reset();
-      
-      res.status(200).json(
-        new ApiResponse(200)
-      ).send();
+      res.status(200).send('OK');
 
     } catch (error: any) {
       if (error instanceof ApiError) {
@@ -32,13 +29,11 @@ export class TakeHomeController {
       const accountId = req.query.account_id as string;
       const balance = await this.takeHomeServices.getBalance(accountId);
       
-      res.status(200).json(
-        new ApiResponse(200, balance)
-      ).send();
+      res.status(200).json(balance).send();
 
     } catch (error: any) {
       if (error instanceof ApiError) {
-        res.status(error.statusCode).json(error).send();
+        res.status(error.statusCode).json(0).send();
       }
       else {
         res.status(500).json(
@@ -85,13 +80,11 @@ export class TakeHomeController {
         }
       }
       
-      res.status(201).json(
-        new ApiResponse(201, responseBody)
-      ).send();
+      res.status(201).json(responseBody).send();
 
     } catch (error: any) {
       if (error instanceof ApiError) {
-        res.status(error.statusCode).json(error).send();
+        res.status(error.statusCode).json(0).send();
       }
       else {
         res.status(500).json(
