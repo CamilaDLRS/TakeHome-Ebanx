@@ -8,19 +8,12 @@ export const createEventSchema = yup.object({
     .oneOf<EventTypes>(['deposit', 'withdraw', 'transfer'])
     .required("Tipo de evento é obrigatório."),
     destination: yup
-    .string()
-   ,// .required("Identificação da conta de destino é obrigatória."),
+    .string(),
    origin: yup
-   .string()
-  ,// .required("Identificação da conta de origem é obrigatória."),
+   .string(),
     amount: yup
     .number()
     .positive()
     .required("Valor do evento é obrigatório.")
   })
 });
-/* 
-se deposito, destino obrigatirio
-se withdraw origem obrigatriro
-se transferencaia origem obrigatriro
- */
