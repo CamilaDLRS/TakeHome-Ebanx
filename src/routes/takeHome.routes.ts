@@ -5,8 +5,11 @@ import { TakeHomeServices } from "../services/service";
 import { ResourceValidation } from "../middlewares/resourceValidation.middleware";
 import { checkAccountId } from "../middlewares/schemas/id.schema";
 import { createEventSchema } from "../middlewares/schemas/event.schema";
+import { FakeDatabase } from "../database/db";
 
-const takeHomeServices = new TakeHomeServices();
+
+const fakeDatabase = new FakeDatabase();
+const takeHomeServices = new TakeHomeServices(fakeDatabase);
 const takeHomeController = new TakeHomeController(takeHomeServices);
 
 const app = express();
@@ -31,7 +34,7 @@ takeHomeRouter.get(
 takeHomeRouter.post(
   "/event",
   ResourceValidation.validateRequest(createEventSchema),
-  (req, res) =>  takeHomeController.createEvent(req, res)
+  (req, res) =>  takeHomeController.createAccountEvent(req, res)
 );
 
 app.use(takeHomeRouter);
